@@ -1,5 +1,6 @@
 from typing import Generic, TypeVar, Dict, List, Optional
-from abc import ABC, abstractmethod
+from .Constraint import Constraint
+
 
 V = TypeVar('V')
 D = TypeVar('D')
@@ -21,3 +22,25 @@ class CSP(Generic[V, D]):
                 raise LookupError
             else:
                 self.constraints[variable].append(constraint)
+
+    def check_valid(self, variable: V, assignment: Dict[V,D]) -> bool:
+        for constraint in self.constraints[variable]:
+            if not constraint.satisfied(assignment):
+                return False
+
+        return True
+
+    def backtracking_search(self, assignment: Dict[V, D] = {}):
+        if len(assignment) == len(self.variables):
+            return assignment
+        unassigned: List[V] = [variable for variable in self.variables
+                               if variable not in assignment]
+        currvar = unassigned[0]
+        for value in self.domains[currvar]:
+            test_assignment = assignment.copy()
+            test_assignment[currvar] = value
+            if self.check_valid(currvar, test_assignment):
+                result: Optional[Dict[V,D]] = self.backtracking_search(test_assignment)
+                if result is not None:
+                    return result
+        return None

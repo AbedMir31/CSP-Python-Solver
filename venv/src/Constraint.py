@@ -11,3 +11,4 @@ class Constraint(Generic[V, D], ABC):
 
     @abstractmethod
     def isValid(self, assignment: Dict[V,D]) -> bool:
+        ...
