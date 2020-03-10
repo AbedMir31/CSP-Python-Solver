@@ -1,6 +1,6 @@
-from typing import Dict
+from typing import Dict, List
 from abc import ABC
-from .Main import Constraint, CSP, V, D
+from Main import CSP, Constraint
 
 
 class BinaryConstraint(Constraint[int, chr, int], ABC):
@@ -10,7 +10,7 @@ class BinaryConstraint(Constraint[int, chr, int], ABC):
         self.op: chr = op
         self.right_var: int = right_var
 
-    def isValid(self, assignment: Dict[V, D]) -> bool:
+    def isValid(self, assignment: Dict[chr, int]) -> bool:
         if self.left_var not in assignment or self.right_var not in assignment:
             return True
         else:
@@ -22,3 +22,4 @@ class BinaryConstraint(Constraint[int, chr, int], ABC):
                 return assignment[self.left_var] == assignment[self.right_var]
             elif self.op == '!':
                 return assignment[self.left_var] != assignment[self.right_var]
+

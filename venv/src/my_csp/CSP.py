@@ -6,8 +6,8 @@ D = TypeVar('D')
 
 
 class Constraint(Generic[V, D], ABC):
-    def __init__(self, variables: List[V]) -> None:
-        self.variables = variables
+    def __init__(self, var: List[V]) -> None:
+        self.variables = var
 
     @abstractmethod
     def isValid(self, assignment: Dict[V, D]) -> bool:
