@@ -5,12 +5,17 @@ variables = list()
 domains = dict()
 Lines = filename.readlines()
 for line in Lines:
-    variables.append(line[0])
-    domains[line[0]] = line[2:len(line) - 1].strip().split(' ')
+    var = line[0]
+    variables.append(var)
+    num_arr = line[2:len(line)].strip().split(' ')
+    num_list = list()
+    for num in num_arr:
+        num_list.append(int(num))
+    domains[var] = num_list
 # for v in variables:
 # print(v + ": " + str(domains[v]))
 
-csp = CSP(variables, domains)
+csp = CSP(variables, domains, False)
 csp.add_constraint(BinaryConstraint('A', '>', 'B'))
 csp.add_constraint(BinaryConstraint('B', '>', 'F'))
 csp.add_constraint(BinaryConstraint('A', '>', 'C'))
@@ -19,5 +24,5 @@ csp.add_constraint(BinaryConstraint('A', '>', 'D'))
 csp.add_constraint(BinaryConstraint('D', '=', 'E'))
 for var in csp.variables:
     print("%s: %s" % (var, csp.domains[var]))
-solution = csp.backtracking_search(False)
-print(solution)
+solution = csp.backtracking_search()
+# print("%s    solution" % solution)
