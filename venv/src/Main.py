@@ -1,6 +1,9 @@
 from my_csp.CSP import CSP, BinaryConstraint
+import sys
 
-filename = open("ex1.var", "rt")
+# for arg in enumerate(sys.argv):
+#    print(arg)
+filename = open(sys.argv[1], "rt")
 variables = list()
 domains = dict()
 Lines = filename.readlines()
@@ -15,14 +18,22 @@ for line in Lines:
 # for v in variables:
 # print(v + ": " + str(domains[v]))
 
-csp = CSP(variables, domains, False)
-csp.add_constraint(BinaryConstraint('A', '>', 'B'))
-csp.add_constraint(BinaryConstraint('B', '>', 'F'))
-csp.add_constraint(BinaryConstraint('A', '>', 'C'))
-csp.add_constraint(BinaryConstraint('C', '>', 'E'))
-csp.add_constraint(BinaryConstraint('A', '>', 'D'))
-csp.add_constraint(BinaryConstraint('D', '=', 'E'))
-for var in csp.variables:
-    print("%s: %s" % (var, csp.domains[var]))
+if sys.argv[3] == "fc":
+    fc = True
+elif sys.argv[3] == "none":
+    fc = False
+else:
+    raise ValueError
+csp = CSP(variables, domains, fc)
+
+fileCon = open(sys.argv[2], "rt")
+linesCon = fileCon.readlines()
+leftop = list()
+rightop = list()
+op = list()
+for line in linesCon:
+    con = BinaryConstraint(line[0], line[2], line[4])
+    csp.add_constraint(con)
+
 solution = csp.backtracking_search()
 # print("%s    solution" % solution)
