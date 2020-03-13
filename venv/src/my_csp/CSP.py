@@ -1,56 +1,61 @@
-from abc import abstractmethod, ABC
 from typing import Generic, TypeVar, Dict, List, Optional
 
 V = TypeVar('V')
 D = TypeVar('D')
 
 
-class Constraint(Generic[V, D], ABC):
-    def __init__(self, var: List[V]) -> None:
-        self.variables = var
+class BinaryConstraint:
+    def __init__(self, left_var, op, right_var):
+        self.left_var = left_var
+        self.right_var = right_var
+        self.op = op
 
-    @abstractmethod
     def isValid(self, assignment: Dict[V, D]) -> bool:
-        ...
+        if self.left_var not in assignment or self.right_var not in assignment:
+            return True
+        else:
+            print("TESTING " + self.left_var + self.op + self.right_var)
+            if self.op == '<':
+                return assignment[self.left_var] < assignment[self.right_var]
+            elif self.op == '>':
+                return assignment[self.left_var] < assignment[self.right_var]
+            elif self.op == '=':
+                return assignment[self.left_var] == assignment[self.right_var]
+            elif self.op == '!':
+                return assignment[self.left_var] != assignment[self.right_var]
 
 
 class CSP(Generic[V, D]):
     def __init__(self, variables: List[V], domains: Dict[V, List[D]]) -> None:
-        self.variables: List[V] = variables
-        self.domains: Dict[V, List[D]] = domains
-        self.constraints: Dict[V, List[Constraint[V, D]]] = {}
-        for var in self.variables:
-            self.constraints[var] = []
-            if var not in self.domains:
-                raise LookupError
+        self.variables = variables
+        self.domains = domains
+        self.constraints = list()
 
-    def add_constraint(self, constraint: Constraint[V, D]):
-        for variable in constraint.variables:
-            if variable not in self.variables:
-                raise LookupError
-            else:
-                self.constraints[variable].append(constraint)
+    def add_constraint(self, constraint):
+        self.constraints.append(constraint)
 
-    def check_valid(self, variable: V, assignment: Dict[V, D]) -> bool:
-        for constraint in self.constraints[variable]:
+    def check_valid(self, assignment: Dict[V, D]) -> bool:
+        for constraint in self.constraints:
             if not constraint.isValid(assignment):
                 return False
-
         return True
 
-    def backtracking_search(self, assignment: Dict[V, D] = {}) -> Optional[Dict[V, D]]:
+    def backtracking_search(self, assignment: Dict[V, D] = None) -> Optional[Dict[V, D]]:
+        if assignment is None:
+            assignment = {}
+            print("Initial Assignment: %s" % assignment)
         if len(assignment) == len(self.variables):
+            print("return assignment")
             return assignment
-        unassigned: List[V] = [variable for variable in self.variables
-                               if variable not in assignment]
+        unassigned: List[V] = [variable for variable in self.variables if variable not in assignment]
         current_var = unassigned[0]
         for value in self.domains[current_var]:
-            test_assignment = assignment.copy()
-            test_assignment[current_var] = value
-            if self.check_valid(current_var, test_assignment):
-                result: Optional[Dict[V, D]] = self.backtracking_search(test_assignment)
+            if self.check_valid(assignment):
+                assignment[current_var] = value
+                result = self.backtracking_search(assignment)
                 if result is not None:
                     return result
-                else:
-                    return None
+            else:
+                print(assignment)
+                assignment.pop(current_var)
         return None
